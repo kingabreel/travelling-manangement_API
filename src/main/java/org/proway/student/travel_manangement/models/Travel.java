@@ -20,7 +20,7 @@ public class Travel {
 
     private String name;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "destiny_id", referencedColumnName = "id")
     private Destiny destiny;
 

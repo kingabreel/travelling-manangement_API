@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,11 +31,14 @@ public class TravelService {
 
         try {
             if (destiny.isEmpty()) throw new EntityNotFoundException();
+            if (travel.getArrival().isBefore(travel.getDeparture())) throw new IllegalArgumentException();
+            if (travel.getArrival().isBefore(LocalDate.now())) throw new IllegalArgumentException();
+            if (travel.getPrice() < 0) throw new IllegalArgumentException("Price must be equals or greater than 0.00");
             travel.setDestiny(destiny.get());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(travel));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (EntityNotFoundException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
@@ -85,5 +89,21 @@ public class TravelService {
         } catch (NullPointerException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
+    }
+
+    public ResponseEntity<List<Travel>> getTravelsBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return ResponseEntity.status(HttpStatus.OK).body(repository.findTravelBetweenDate(startDate, endDate));
+    }
+
+    public ResponseEntity<List<Travel>> getTravelsByStartDate(LocalDate startDate) {
+        return ResponseEntity.status(HttpStatus.OK).body(repository.findTravelByDepartureIsAfter(startDate));
+    }
+
+    public ResponseEntity<List<Travel>> getTravelsByArrivalDate(LocalDate endDate) {
+        return ResponseEntity.status(HttpStatus.OK).body(repository.findTravelByArrivalIsBefore(endDate));
+    }
+
+    public ResponseEntity<List<Travel>> getTravelsByPrice(double price) {
+        return ResponseEntity.status(HttpStatus.OK).body(repository.findTravelByPriceLessThanEqual(price));
     }
 }

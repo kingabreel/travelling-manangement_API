@@ -1,5 +1,5 @@
 CREATE TABLE destiny (
-    id UUID,
+    id SERIAL PRIMARY KEY,
     name TEXT,
     country TEXT,
     city TEXT,
@@ -7,7 +7,7 @@ CREATE TABLE destiny (
 );
 
 CREATE TABLE travel (
-    id UUID,
+    id SERIAL PRIMARY KEY,
     name TEXT,
     destiny_id int,
     departure TIMESTAMP,
